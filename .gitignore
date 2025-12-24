@@ -2,3 +2,4 @@ tests/e2etest-*/aws-creds
 tests/e2etest-*/secrets/
 .tmp/
 _output/
+.up/
