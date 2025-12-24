@@ -1,0 +1,27 @@
+apiVersion: aws.hops.ops.com.ai/v1alpha1
+kind: IPV4NetworkAllocation
+metadata:
+  name: dev-west
+  namespace: infra
+spec:
+  # Regional pool ID from aws-ipam status
+  regionalPoolId: ipam-pool-0123456789abcdef0
+
+  aws:
+    providerConfig: default
+    region: us-west-2
+
+  # Smaller VPC for dev
+  vpc:
+    netmaskLength: 20
+
+  # Only 2 AZs, smaller subnets
+  subnets:
+    availabilityZones:
+    - a
+    - b
+    types:
+      public:
+        netmaskLength: 26
+      private:
+        netmaskLength: 24

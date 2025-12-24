@@ -1,0 +1,129 @@
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+  name: ipv4networkallocations.aws.hops.ops.com.ai
+spec:
+  scope: Namespaced
+  group: aws.hops.ops.com.ai
+  names:
+    kind: IPV4NetworkAllocation
+    plural: ipv4networkallocations
+  versions:
+  - name: v1alpha1
+    referenceable: true
+    served: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        description: |
+          IPV4NetworkAllocation bridges IPAM and Network by creating per-network pools
+          and reserving IPv4 CIDRs via VPCIpamPoolCidrAllocation. Exposes allocated CIDRs
+          in status for Network to consume.
+        required:
+        - spec
+        properties:
+          spec:
+            type: object
+            description: Desired state for the IPv4 network allocation.
+            required:
+            - regionalPoolId
+            properties:
+              managementPolicies:
+                type: array
+                description: Management operations permitted on composed resources.
+                items:
+                  type: string
+                  enum:
+                  - "*"
+                  - Create
+                  - Observe
+                  - Update
+                  - Delete
+                  - LateInitialize
+                default:
+                - "*"
+              regionalPoolId:
+                type: string
+                description: |
+                  ID of the regional IPAM pool to allocate from (from aws-ipam status).
+                  This pool should be the regional pool created by aws-ipam.
+              aws:
+                type: object
+                description: AWS configuration.
+                properties:
+                  providerConfig:
+                    type: string
+                    description: ProviderConfig for AWS API operations. Defaults to "default".
+                  region:
+                    type: string
+                    description: AWS region for the allocation. Defaults to us-east-1.
+              vpc:
+                type: object
+                description: VPC sizing configuration.
+                properties:
+                  netmaskLength:
+                    type: integer
+                    description: Netmask length for the VPC CIDR block. Defaults to 16.
+                    minimum: 8
+                    maximum: 28
+                    default: 16
+              subnets:
+                type: object
+                description: Subnet layout configuration.
+                properties:
+                  availabilityZones:
+                    type: array
+                    description: Availability zone suffixes (a, b, c). Defaults to [a, b, c].
+                    items:
+                      type: string
+                    default:
+                    - a
+                    - b
+                    - c
+                  types:
+                    type: object
+                    description: Subnet type configurations.
+                    properties:
+                      public:
+                        type: object
+                        description: Public subnet configuration.
+                        properties:
+                          netmaskLength:
+                            type: integer
+                            description: Netmask length for public subnets. Defaults to 24.
+                            minimum: 16
+                            maximum: 28
+                            default: 24
+                      private:
+                        type: object
+                        description: Private subnet configuration.
+                        properties:
+                          netmaskLength:
+                            type: integer
+                            description: Netmask length for private subnets. Defaults to 20.
+                            minimum: 16
+                            maximum: 28
+                            default: 20
+          status:
+            type: object
+            description: Observed state of the IPv4 network allocation.
+            properties:
+              ready:
+                type: boolean
+                description: True when all allocations are complete.
+              cidr:
+                type: string
+                description: Allocated VPC CIDR block.
+              vpcPoolId:
+                type: string
+                description: ID of the VPC IPAM pool.
+              privatePoolId:
+                type: string
+                description: ID of the private subnet IPAM pool.
+              publicPoolId:
+                type: string
+                description: ID of the public subnet IPAM pool.
+              subnets:
+                type: object
+                description: Map of subnet name to allocated CIDR.
+                x-kubernetes-preserve-unknown-fields: true

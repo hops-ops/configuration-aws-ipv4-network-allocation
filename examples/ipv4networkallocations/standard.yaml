@@ -1,0 +1,28 @@
+apiVersion: aws.hops.ops.com.ai/v1alpha1
+kind: IPV4NetworkAllocation
+metadata:
+  name: prod-east
+  namespace: infra
+spec:
+  # Regional pool ID from aws-ipam status
+  regionalPoolId: ipam-pool-0123456789abcdef0
+
+  aws:
+    providerConfig: default
+    region: us-east-1
+
+  # VPC sizing
+  vpc:
+    netmaskLength: 16
+
+  # Subnet layout
+  subnets:
+    availabilityZones:
+    - a
+    - b
+    - c
+    types:
+      public:
+        netmaskLength: 24
+      private:
+        netmaskLength: 20
