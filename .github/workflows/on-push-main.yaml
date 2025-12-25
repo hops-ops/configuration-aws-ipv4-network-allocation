@@ -28,7 +28,10 @@ jobs:
         [
           { "example": "examples/ipv4networkallocations/minimal.yaml" },
           { "example": "examples/ipv4networkallocations/standard.yaml" },
-          { "example": "examples/ipv4networkallocations/custom-sizes.yaml" }
+          { "example": "examples/ipv4networkallocations/custom-sizes.yaml" },
+          { "example": "examples/ipv4networkallocations/standard.yaml", "observed_resources": "examples/test/mocks/observed-resources/standard/steps/1/" },
+          { "example": "examples/ipv4networkallocations/standard.yaml", "observed_resources": "examples/test/mocks/observed-resources/standard/steps/2/" },
+          { "example": "examples/ipv4networkallocations/standard.yaml", "observed_resources": "examples/test/mocks/observed-resources/standard/steps/3/" }
         ]
       api_path: apis/ipv4networkallocations
       error_on_missing_schemas: true
