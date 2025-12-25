@@ -26,11 +26,11 @@ jobs:
     with:
       examples: |
         [
-          { "example": "examples/ipv4networkallocations/minimal.yaml" },
-          { "example": "examples/ipv4networkallocations/standard.yaml" },
-          { "example": "examples/ipv4networkallocations/custom-sizes.yaml" }
+          { "example": "examples/IPv4NetworkAllocations/minimal.yaml" },
+          { "example": "examples/IPv4NetworkAllocations/standard.yaml" },
+          { "example": "examples/IPv4NetworkAllocations/custom-sizes.yaml" }
         ]
-      api_path: apis/ipv4networkallocations
+      api_path: apis/IPv4NetworkAllocations
       error_on_missing_schemas: true
 
   test:

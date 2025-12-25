@@ -11,6 +11,9 @@
 # Regional pool ID from aws-ipam status (required)
 {{ $regionalPoolId := $spec.regionalPoolId }}
 
+# IPAM scope ID from aws-ipam status (required for child pools)
+{{ $scopeId := $spec.scopeId }}
+
 # Management policies
 {{ $managementPolicies := $spec.managementPolicies | default (list "*") }}
 

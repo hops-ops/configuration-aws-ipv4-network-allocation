@@ -1,13 +1,13 @@
 apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
-  name: ipv4networkallocations.aws.hops.ops.com.ai
+  name: IPv4NetworkAllocations.aws.hops.ops.com.ai
 spec:
   scope: Namespaced
   group: aws.hops.ops.com.ai
   names:
-    kind: IPV4NetworkAllocation
-    plural: ipv4networkallocations
+    kind: IPv4NetworkAllocation
+    plural: IPv4NetworkAllocations
   versions:
   - name: v1alpha1
     referenceable: true
@@ -16,7 +16,7 @@ spec:
       openAPIV3Schema:
         type: object
         description: |
-          IPV4NetworkAllocation bridges IPAM and Network by creating per-network pools
+          IPv4NetworkAllocation bridges IPAM and Network by creating per-network pools
           and reserving IPv4 CIDRs via VPCIpamPoolCidrAllocation. Exposes allocated CIDRs
           in status for Network to consume.
         required:
@@ -27,6 +27,7 @@ spec:
             description: Desired state for the IPv4 network allocation.
             required:
             - regionalPoolId
+            - scopeId
             properties:
               managementPolicies:
                 type: array
@@ -47,6 +48,11 @@ spec:
                 description: |
                   ID of the regional IPAM pool to allocate from (from aws-ipam status).
                   This pool should be the regional pool created by aws-ipam.
+              scopeId:
+                type: string
+                description: |
+                  IPAM scope ID (from aws-ipam status.ipam.privateDefaultScopeId).
+                  Required for creating child pools.
               aws:
                 type: object
                 description: AWS configuration.

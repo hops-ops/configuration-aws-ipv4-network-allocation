@@ -4,7 +4,7 @@ Bridge between IPAM (address space) and Network (infrastructure). Reserves IPv4 
 
 ## Purpose
 
-IPV4NetworkAllocation creates per-network pools and allocations from a regional IPAM pool, then exposes the allocated CIDRs in status for aws-network to consume.
+IPv4NetworkAllocation creates per-network pools and allocations from a regional IPAM pool, then exposes the allocated CIDRs in status for aws-network to consume.
 
 ## Pool Hierarchy
 
@@ -14,7 +14,7 @@ aws-ipam creates:
 └── Regional Pools /12 (children of global)
       └── us-east-1 pool (10.0.0.0/12)
 
-IPV4NetworkAllocation creates (per network):
+IPv4NetworkAllocation creates (per network):
 └── VPC Pool (child of regional)
       └── VPCIpamPoolCidr (gets /16 from regional)
       │
@@ -56,7 +56,7 @@ Templates execute in order, each gating on the previous step:
 
 ```yaml
 apiVersion: aws.hops.ops.com.ai/v1alpha1
-kind: IPV4NetworkAllocation
+kind: IPv4NetworkAllocation
 metadata:
   name: prod-east
   namespace: infra

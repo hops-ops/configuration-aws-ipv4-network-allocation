@@ -1,5 +1,5 @@
 [package]
-name = "e2etest-ipv4networkallocations"
+name = "e2etest-IPv4NetworkAllocations"
 version = "0.0.1"
 
 [dependencies]

@@ -1,11 +1,11 @@
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: ipv4networkallocations.aws.hops.ops.com.ai
+  name: IPv4NetworkAllocations.aws.hops.ops.com.ai
 spec:
   compositeTypeRef:
     apiVersion: aws.hops.ops.com.ai/v1alpha1
-    kind: IPV4NetworkAllocation
+    kind: IPv4NetworkAllocation
   mode: Pipeline
   pipeline:
   - functionRef:

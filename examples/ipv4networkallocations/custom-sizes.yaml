@@ -1,11 +1,13 @@
 apiVersion: aws.hops.ops.com.ai/v1alpha1
-kind: IPV4NetworkAllocation
+kind: IPv4NetworkAllocation
 metadata:
   name: dev-west
   namespace: infra
 spec:
   # Regional pool ID from aws-ipam status
   regionalPoolId: ipam-pool-0123456789abcdef0
+  # IPAM scope ID from aws-ipam status.ipam.privateDefaultScopeId
+  scopeId: ipam-scope-0123456789abcdef0
 
   aws:
     providerConfig: default

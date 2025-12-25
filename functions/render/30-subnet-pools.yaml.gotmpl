@@ -19,6 +19,7 @@ spec:
   managementPolicies: {{ $managementPolicies | toJson }}
   forProvider:
     addressFamily: ipv4
+    ipamScopeId: {{ $scopeId }}
     sourceIpamPoolId: {{ $observedVpcPoolId }}
     allocationDefaultNetmaskLength: {{ $privateNetmaskLength }}
     locale: {{ $awsRegion }}
@@ -63,6 +64,7 @@ spec:
   managementPolicies: {{ $managementPolicies | toJson }}
   forProvider:
     addressFamily: ipv4
+    ipamScopeId: {{ $scopeId }}
     sourceIpamPoolId: {{ $observedVpcPoolId }}
     allocationDefaultNetmaskLength: {{ $publicNetmaskLength }}
     locale: {{ $awsRegion }}
