@@ -1,4 +1,4 @@
-# e2etest-IPv4NetworkAllocations - Tests IPv4 network CIDR allocation from IPAM pool
+# e2etest-ipv4networkallocations - Tests IPv4 network CIDR allocation from IPAM pool
 # ================================================================================
 # Creates an IPv4NetworkAllocation that allocates VPC and subnet CIDRs from a
 # regional IPAM pool.

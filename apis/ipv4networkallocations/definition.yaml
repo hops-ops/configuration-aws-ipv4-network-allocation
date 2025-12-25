@@ -1,13 +1,13 @@
 apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
-  name: IPv4NetworkAllocations.aws.hops.ops.com.ai
+  name: ipv4networkallocations.aws.hops.ops.com.ai
 spec:
   scope: Namespaced
   group: aws.hops.ops.com.ai
   names:
     kind: IPv4NetworkAllocation
-    plural: IPv4NetworkAllocations
+    plural: ipv4networkallocations
   versions:
   - name: v1alpha1
     referenceable: true

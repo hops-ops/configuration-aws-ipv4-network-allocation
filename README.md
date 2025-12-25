@@ -177,9 +177,9 @@ Located in `tests/test-render/`, these test:
 
 ### E2E Tests
 
-Located in `tests/e2etest-IPv4NetworkAllocations/`. Prerequisites:
+Located in `tests/e2etest-ipv4networkallocations/`. Prerequisites:
 1. Run `aws-ipam` E2E test first to create persistent IPAM
-2. Copy AWS credentials to `tests/e2etest-IPv4NetworkAllocations/secrets/aws-creds`
+2. Copy AWS credentials to `tests/e2etest-ipv4networkallocations/secrets/aws-creds`
 3. Update `_regional_pool_id` in `main.k` with your pool ID
 
 ## Dependencies

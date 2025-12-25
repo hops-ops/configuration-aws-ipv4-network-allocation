@@ -7,9 +7,9 @@ _items = [
     metav1alpha1.CompositionTest{
         metadata.name: "test-ipv4-allocation-minimal"
         spec = {
-            compositionPath: "apis/IPv4NetworkAllocations/composition.yaml"
-            xrPath: "examples/IPv4NetworkAllocations/minimal.yaml"
-            xrdPath: "apis/IPv4NetworkAllocations/definition.yaml"
+            compositionPath: "apis/ipv4networkallocations/composition.yaml"
+            xrPath: "examples/ipv4networkallocations/minimal.yaml"
+            xrdPath: "apis/ipv4networkallocations/definition.yaml"
             timeoutSeconds: 120
             validate: True
             assertResources: [
@@ -71,9 +71,9 @@ _items = [
     metav1alpha1.CompositionTest{
         metadata.name: "test-ipv4-allocation-standard"
         spec = {
-            compositionPath: "apis/IPv4NetworkAllocations/composition.yaml"
-            xrPath: "examples/IPv4NetworkAllocations/standard.yaml"
-            xrdPath: "apis/IPv4NetworkAllocations/definition.yaml"
+            compositionPath: "apis/ipv4networkallocations/composition.yaml"
+            xrPath: "examples/ipv4networkallocations/standard.yaml"
+            xrdPath: "apis/ipv4networkallocations/definition.yaml"
             timeoutSeconds: 120
             validate: True
             assertResources: [
@@ -119,9 +119,9 @@ _items = [
     metav1alpha1.CompositionTest{
         metadata.name: "test-ipv4-allocation-step2-subnet-pools"
         spec = {
-            compositionPath: "apis/IPv4NetworkAllocations/composition.yaml"
-            xrPath: "examples/IPv4NetworkAllocations/standard.yaml"
-            xrdPath: "apis/IPv4NetworkAllocations/definition.yaml"
+            compositionPath: "apis/ipv4networkallocations/composition.yaml"
+            xrPath: "examples/ipv4networkallocations/standard.yaml"
+            xrdPath: "apis/ipv4networkallocations/definition.yaml"
             timeoutSeconds: 120
             validate: True
             observedResources: [
@@ -251,9 +251,9 @@ _items = [
     metav1alpha1.CompositionTest{
         metadata.name: "test-ipv4-allocation-step3-allocations"
         spec = {
-            compositionPath: "apis/IPv4NetworkAllocations/composition.yaml"
-            xrPath: "examples/IPv4NetworkAllocations/standard.yaml"
-            xrdPath: "apis/IPv4NetworkAllocations/definition.yaml"
+            compositionPath: "apis/ipv4networkallocations/composition.yaml"
+            xrPath: "examples/ipv4networkallocations/standard.yaml"
+            xrdPath: "apis/ipv4networkallocations/definition.yaml"
             timeoutSeconds: 120
             validate: True
             observedResources: [
@@ -481,9 +481,9 @@ _items = [
     metav1alpha1.CompositionTest{
         metadata.name: "test-ipv4-allocation-custom-sizes"
         spec = {
-            compositionPath: "apis/IPv4NetworkAllocations/composition.yaml"
-            xrPath: "examples/IPv4NetworkAllocations/custom-sizes.yaml"
-            xrdPath: "apis/IPv4NetworkAllocations/definition.yaml"
+            compositionPath: "apis/ipv4networkallocations/composition.yaml"
+            xrPath: "examples/ipv4networkallocations/custom-sizes.yaml"
+            xrdPath: "apis/ipv4networkallocations/definition.yaml"
             timeoutSeconds: 120
             validate: True
             assertResources: [
@@ -518,9 +518,9 @@ _items = [
     metav1alpha1.CompositionTest{
         metadata.name: "test-ipv4-allocation-complete-status"
         spec = {
-            compositionPath: "apis/IPv4NetworkAllocations/composition.yaml"
-            xrPath: "examples/IPv4NetworkAllocations/standard.yaml"
-            xrdPath: "apis/IPv4NetworkAllocations/definition.yaml"
+            compositionPath: "apis/ipv4networkallocations/composition.yaml"
+            xrPath: "examples/ipv4networkallocations/standard.yaml"
+            xrdPath: "apis/ipv4networkallocations/definition.yaml"
             timeoutSeconds: 120
             validate: True
             observedResources: [

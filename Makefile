@@ -1,22 +1,22 @@
 SHELL := /bin/bash
 
 PACKAGE ?= configuration-aws-ipv4-network-allocation
-XRD_DIR := apis/IPv4NetworkAllocations
+XRD_DIR := apis/ipv4networkallocations
 COMPOSITION := $(XRD_DIR)/composition.yaml
 DEFINITION := $(XRD_DIR)/definition.yaml
-EXAMPLE_DEFAULT := examples/IPv4NetworkAllocations/standard.yaml
+EXAMPLE_DEFAULT := examples/ipv4networkallocations/standard.yaml
 RENDER_TESTS := $(wildcard tests/test-*)
 E2E_TESTS := $(wildcard tests/e2etest-*)
 
 # Examples list - mirrors GitHub Actions workflow
 # Format: example_path::observed_resources_path (observed_resources_path is optional)
 EXAMPLES := \
-    examples/IPv4NetworkAllocations/minimal.yaml:: \
-    examples/IPv4NetworkAllocations/standard.yaml:: \
-    examples/IPv4NetworkAllocations/custom-sizes.yaml:: \
-    examples/IPv4NetworkAllocations/standard.yaml::examples/test/mocks/observed-resources/standard/steps/1/ \
-    examples/IPv4NetworkAllocations/standard.yaml::examples/test/mocks/observed-resources/standard/steps/2/ \
-    examples/IPv4NetworkAllocations/standard.yaml::examples/test/mocks/observed-resources/standard/steps/3/
+    examples/ipv4networkallocations/minimal.yaml:: \
+    examples/ipv4networkallocations/standard.yaml:: \
+    examples/ipv4networkallocations/custom-sizes.yaml:: \
+    examples/ipv4networkallocations/standard.yaml::examples/test/mocks/observed-resources/standard/steps/1/ \
+    examples/ipv4networkallocations/standard.yaml::examples/test/mocks/observed-resources/standard/steps/2/ \
+    examples/ipv4networkallocations/standard.yaml::examples/test/mocks/observed-resources/standard/steps/3/
 
 clean:
 	rm -rf _output
@@ -96,7 +96,7 @@ validate: validate\:all
 
 # Single example render (usage: make render:minimal)
 render\:%:
-	@example="examples/IPv4NetworkAllocations/$*.yaml"; \
+	@example="examples/ipv4networkallocations/$*.yaml"; \
 	if [ -f "$$example" ]; then \
 		echo "=== Rendering $$example ==="; \
 		up composition render --xrd=$(DEFINITION) $(COMPOSITION) $$example; \
@@ -107,7 +107,7 @@ render\:%:
 
 # Single example validate (usage: make validate:minimal)
 validate\:%:
-	@example="examples/IPv4NetworkAllocations/$*.yaml"; \
+	@example="examples/ipv4networkallocations/$*.yaml"; \
 	if [ -f "$$example" ]; then \
 		echo "=== Validating $$example ==="; \
 		up composition render --xrd=$(DEFINITION) $(COMPOSITION) $$example \
