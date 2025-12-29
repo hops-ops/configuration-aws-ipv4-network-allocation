@@ -22,13 +22,12 @@
 {{ $providerConfigKind := $providerConfigRef.kind | default "ProviderConfig" }}
 
 # AWS configuration
-{{ $aws := $spec.aws | default (dict) }}
-{{ $awsRegion := $aws.region | default "us-east-1" }}
-{{ $awsLocale := $aws.locale | default "" }}
+{{ $awsRegion := $spec.region | default "" }}
+{{ $awsLocale := $spec.locale | default $awsRegion }}
 
 # Default tags merged with user-provided tags
 {{ $defaultTags := dict "hops" "true" }}
-{{ $awsTags := merge $defaultTags ($aws.tags | default (dict)) }}
+{{ $awsTags := merge $defaultTags ($spec.tags | default (dict)) }}
 
 # VPC sizing
 {{ $vpc := $spec.vpc | default (dict) }}

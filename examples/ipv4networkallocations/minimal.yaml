@@ -8,3 +8,4 @@ spec:
   regionalPoolId: ipam-pool-0123456789abcdef0
   # Required: IPAM scope ID from aws-ipam status.ipam.privateDefaultScopeId
   scopeId: ipam-scope-0123456789abcdef0
+  region: us-east-1

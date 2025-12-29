@@ -34,7 +34,6 @@ _items = [
                             region: "us-east-1"
                             tags: {
                                 hops: "true"
-                                "managed-by": "crossplane"
                             }
                         }
                         providerConfigRef: {

@@ -12,12 +12,11 @@ spec:
   providerConfigRef:
     name: default
 
-  aws:
-    region: us-west-2
-    # Custom tags merged with defaults (hops=true, managed-by=crossplane)
-    tags:
-      environment: dev
-      team: platform
+  region: us-west-2
+  # Custom tags merged with defaults (hops=true, managed-by=crossplane)
+  tags:
+    environment: dev
+    team: platform
 
   # Smaller VPC for dev
   vpc:

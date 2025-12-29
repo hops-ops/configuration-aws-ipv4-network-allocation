@@ -64,9 +64,7 @@ _items = [
                         providerConfigRef: {
                             name: "default"
                         }
-                        aws: {
-                            region: _region
-                        }
+                        region: _region
                         # Smaller VPC for e2e test
                         vpc: {
                             netmaskLength: 20

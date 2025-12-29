@@ -28,6 +28,7 @@ spec:
             required:
             - regionalPoolId
             - scopeId
+            - region
             properties:
               managementPolicies:
                 type: array
@@ -64,24 +65,20 @@ spec:
                 description: |
                   IPAM scope ID (from aws-ipam status.ipam.privateDefaultScopeId).
                   Required for creating child pools.
-              aws:
+              region:
+                type: string
+                description: AWS region where the pool resources are managed.
+              locale:
+                type: string
+                description: |
+                  AWS region where CIDRs from these pools can be allocated.
+                  When set, only VPCs in this region can use addresses from the pools.
+                  Leave unset to inherit from parent pool or let AWS default.
+              tags:
                 type: object
-                description: AWS configuration.
-                properties:
-                  region:
-                    type: string
-                    description: AWS region where the pool resources are managed. Defaults to us-east-1.
-                  locale:
-                    type: string
-                    description: |
-                      AWS region where CIDRs from these pools can be allocated.
-                      When set, only VPCs in this region can use addresses from the pools.
-                      Leave unset to inherit from parent pool or let AWS default.
-                  tags:
-                    type: object
-                    description: Additional tags to apply to AWS resources. Merged with default tags.
-                    additionalProperties:
-                      type: string
+                description: Additional tags to apply to AWS resources. Merged with default tags.
+                additionalProperties:
+                  type: string
               vpc:
                 type: object
                 description: VPC sizing configuration.
@@ -89,9 +86,9 @@ spec:
                   netmaskLength:
                     type: integer
                     description: Netmask length for the VPC CIDR block. Defaults to 16.
-                    minimum: 8
-                    maximum: 28
                     default: 16
+                    minimum: 16
+                    maximum: 28
               subnets:
                 type: object
                 description: Subnet layout configuration.
