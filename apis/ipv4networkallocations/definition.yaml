@@ -43,6 +43,17 @@ spec:
                   - LateInitialize
                 default:
                 - "*"
+              providerConfigRef:
+                type: object
+                description: Reference to the AWS ProviderConfig.
+                properties:
+                  name:
+                    type: string
+                    description: Name of the ProviderConfig. Defaults to "default".
+                  kind:
+                    type: string
+                    description: Kind of the ProviderConfig. Defaults to "ProviderConfig".
+                    default: ProviderConfig
               regionalPoolId:
                 type: string
                 description: |
@@ -57,12 +68,20 @@ spec:
                 type: object
                 description: AWS configuration.
                 properties:
-                  providerConfig:
-                    type: string
-                    description: ProviderConfig for AWS API operations. Defaults to "default".
                   region:
                     type: string
-                    description: AWS region for the allocation. Defaults to us-east-1.
+                    description: AWS region where the pool resources are managed. Defaults to us-east-1.
+                  locale:
+                    type: string
+                    description: |
+                      AWS region where CIDRs from these pools can be allocated.
+                      When set, only VPCs in this region can use addresses from the pools.
+                      Leave unset to inherit from parent pool or let AWS default.
+                  tags:
+                    type: object
+                    description: Additional tags to apply to AWS resources. Merged with default tags.
+                    additionalProperties:
+                      type: string
               vpc:
                 type: object
                 description: VPC sizing configuration.
@@ -86,30 +105,34 @@ spec:
                     - a
                     - b
                     - c
-                  types:
+                  public:
                     type: object
-                    description: Subnet type configurations.
+                    description: Public subnet configuration.
                     properties:
-                      public:
-                        type: object
-                        description: Public subnet configuration.
-                        properties:
-                          netmaskLength:
-                            type: integer
-                            description: Netmask length for public subnets. Defaults to 24.
-                            minimum: 16
-                            maximum: 28
-                            default: 24
-                      private:
-                        type: object
-                        description: Private subnet configuration.
-                        properties:
-                          netmaskLength:
-                            type: integer
-                            description: Netmask length for private subnets. Defaults to 20.
-                            minimum: 16
-                            maximum: 28
-                            default: 20
+                      enabled:
+                        type: boolean
+                        description: Whether to create public subnets. Defaults to true.
+                        default: true
+                      netmaskLength:
+                        type: integer
+                        description: Netmask length for public subnets. Defaults to 24.
+                        minimum: 20
+                        maximum: 24
+                        default: 24
+                  private:
+                    type: object
+                    description: Private subnet configuration.
+                    properties:
+                      enabled:
+                        type: boolean
+                        description: Whether to create private subnets. Defaults to true.
+                        default: true
+                      netmaskLength:
+                        type: integer
+                        description: Netmask length for private subnets. Defaults to 20.
+                        minimum: 20
+                        maximum: 24
+                        default: 20
           status:
             type: object
             description: Observed state of the IPv4 network allocation.
@@ -123,12 +146,9 @@ spec:
               vpcPoolId:
                 type: string
                 description: ID of the VPC IPAM pool.
-              privatePoolId:
+              subnetPoolId:
                 type: string
-                description: ID of the private subnet IPAM pool.
-              publicPoolId:
-                type: string
-                description: ID of the public subnet IPAM pool.
+                description: ID of the subnet IPAM pool.
               subnets:
                 type: object
                 description: Map of subnet name to allocated CIDR.

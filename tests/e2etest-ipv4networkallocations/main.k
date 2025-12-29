@@ -39,7 +39,7 @@ _region = "us-east-2"
 # This is the IPv4 pool created by the persistent IPAM
 # Update this after running aws-ipam e2e test:
 #   aws ec2 describe-ipam-pools --query 'IpamPools[?contains(Description, `IPv4 pool`)].IpamPoolId'
-_regional_pool_id = "ipam-pool-0a82c73b97dc0dabb"
+_regional_pool_id = "ipam-pool-0607416fa3707147a"
 
 # IPAM scope ID from aws-ipam e2e test
 # Update this after running aws-ipam e2e test:
@@ -61,8 +61,10 @@ _items = [
                     spec: {
                         regionalPoolId: _regional_pool_id
                         scopeId: _scope_id
+                        providerConfigRef: {
+                            name: "default"
+                        }
                         aws: {
-                            providerConfig: "default"
                             region: _region
                         }
                         # Smaller VPC for e2e test
@@ -72,13 +74,11 @@ _items = [
                         # Only 2 AZs for faster test
                         subnets: {
                             availabilityZones: ["a", "b"]
-                            types: {
-                                public: {
-                                    netmaskLength: 26
-                                }
-                                private: {
-                                    netmaskLength: 24
-                                }
+                            public: {
+                                netmaskLength: 24
+                            }
+                            private: {
+                                netmaskLength: 22
                             }
                         }
                     }

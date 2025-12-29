@@ -19,10 +19,9 @@ The configuration creates a hierarchy of IPAM pools:
 ```
 Regional Pool (from aws-ipam)
 └── VPC Pool (/16 default)
-    ├── Private Subnet Pool
-    │   └── Allocations per AZ (/20 default)
-    └── Public Subnet Pool
-        └── Allocations per AZ (/24 default)
+    └── Subnet Pool (same CIDR as VPC)
+        ├── Private Allocations per AZ (/20 default)
+        └── Public Allocations per AZ (/24 default)
 ```
 
 ## Usage
@@ -38,6 +37,8 @@ metadata:
 spec:
   # Required: regional pool ID from aws-ipam status
   regionalPoolId: ipam-pool-0123456789abcdef0
+  # Required: IPAM scope ID from aws-ipam status.ipam.privateDefaultScopeId
+  scopeId: ipam-scope-0123456789abcdef0
 ```
 
 Uses defaults:
@@ -55,9 +56,12 @@ metadata:
   namespace: infra
 spec:
   regionalPoolId: ipam-pool-0123456789abcdef0
+  scopeId: ipam-scope-0123456789abcdef0
+
+  providerConfigRef:
+    name: default
 
   aws:
-    providerConfig: default
     region: us-east-1
 
   vpc:
@@ -68,11 +72,10 @@ spec:
     - a
     - b
     - c
-    types:
-      public:
-        netmaskLength: 24
-      private:
-        netmaskLength: 20
+    public:
+      netmaskLength: 24
+    private:
+      netmaskLength: 20
 ```
 
 ### Custom Sizes Example
@@ -85,9 +88,12 @@ metadata:
   namespace: infra
 spec:
   regionalPoolId: ipam-pool-0123456789abcdef0
+  scopeId: ipam-scope-0123456789abcdef0
+
+  providerConfigRef:
+    name: default
 
   aws:
-    providerConfig: default
     region: us-west-2
 
   # Smaller VPC for dev
@@ -99,11 +105,10 @@ spec:
     availabilityZones:
     - a
     - b
-    types:
-      public:
-        netmaskLength: 26
-      private:
-        netmaskLength: 24
+    public:
+      netmaskLength: 24
+    private:
+      netmaskLength: 22
 ```
 
 ## Status
@@ -115,8 +120,7 @@ status:
   ready: true
   cidr: "10.0.0.0/16"
   vpcPoolId: "ipam-pool-vpc-12345"
-  privatePoolId: "ipam-pool-private-12345"
-  publicPoolId: "ipam-pool-public-12345"
+  subnetPoolId: "ipam-pool-subnet-12345"
   subnets:
     private-a: "10.0.0.0/20"
     private-b: "10.0.16.0/20"
@@ -131,12 +135,18 @@ status:
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `regionalPoolId` | string | (required) | ID of the regional IPAM pool to allocate from |
-| `aws.providerConfig` | string | `"default"` | AWS ProviderConfig name |
+| `scopeId` | string | (required) | IPAM scope ID for creating child pools |
+| `providerConfigRef.name` | string | `"default"` | AWS ProviderConfig name |
+| `providerConfigRef.kind` | string | `"ProviderConfig"` | ProviderConfig kind |
 | `aws.region` | string | `"us-east-1"` | AWS region |
+| `aws.locale` | string | (unset) | AWS locale for CIDR allocation restriction |
+| `aws.tags` | object | `{}` | Additional tags merged with defaults |
 | `vpc.netmaskLength` | integer | `16` | VPC CIDR netmask (8-28) |
 | `subnets.availabilityZones` | []string | `["a", "b", "c"]` | AZ suffixes |
-| `subnets.types.public.netmaskLength` | integer | `24` | Public subnet netmask (16-28) |
-| `subnets.types.private.netmaskLength` | integer | `20` | Private subnet netmask (16-28) |
+| `subnets.public.enabled` | boolean | `true` | Whether to create public subnets |
+| `subnets.public.netmaskLength` | integer | `24` | Public subnet netmask (20-24) |
+| `subnets.private.enabled` | boolean | `true` | Whether to create private subnets |
+| `subnets.private.netmaskLength` | integer | `20` | Private subnet netmask (20-24) |
 | `managementPolicies` | []string | `["*"]` | Crossplane management policies |
 
 ## Observed-State Gating
@@ -144,8 +154,8 @@ status:
 The composition uses observed-state gating to create resources in stages:
 
 1. **Stage 1**: VPC pool + CIDR (always created)
-2. **Stage 2**: Subnet pools + CIDRs (after VPC pool ready)
-3. **Stage 3**: Subnet allocations (after subnet pools ready)
+2. **Stage 2**: Subnet pool + CIDR (after VPC pool ready)
+3. **Stage 3**: Subnet allocations (after subnet pool ready)
 
 This prevents premature resource creation and ensures CIDRs are properly allocated before dependent resources reference them.
 

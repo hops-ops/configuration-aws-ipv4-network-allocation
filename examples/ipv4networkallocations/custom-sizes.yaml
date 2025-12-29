@@ -9,21 +9,26 @@ spec:
   # IPAM scope ID from aws-ipam status.ipam.privateDefaultScopeId
   scopeId: ipam-scope-0123456789abcdef0
 
+  providerConfigRef:
+    name: default
+
   aws:
-    providerConfig: default
     region: us-west-2
+    # Custom tags merged with defaults (hops=true, managed-by=crossplane)
+    tags:
+      environment: dev
+      team: platform
 
   # Smaller VPC for dev
   vpc:
     netmaskLength: 20
 
-  # Only 2 AZs, smaller subnets
+  # Only 2 AZs, custom subnet sizes
   subnets:
     availabilityZones:
     - a
     - b
-    types:
-      public:
-        netmaskLength: 26
-      private:
-        netmaskLength: 24
+    public:
+      netmaskLength: 24
+    private:
+      netmaskLength: 20

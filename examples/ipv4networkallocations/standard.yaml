@@ -9,8 +9,10 @@ spec:
   # IPAM scope ID from aws-ipam status.ipam.privateDefaultScopeId
   scopeId: ipam-scope-0123456789abcdef0
 
+  providerConfigRef:
+    name: default
+
   aws:
-    providerConfig: default
     region: us-east-1
 
   # VPC sizing
@@ -23,8 +25,7 @@ spec:
     - a
     - b
     - c
-    types:
-      public:
-        netmaskLength: 24
-      private:
-        netmaskLength: 20
+    public:
+      netmaskLength: 24
+    private:
+      netmaskLength: 20

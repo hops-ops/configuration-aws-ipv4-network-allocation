@@ -31,7 +31,6 @@ _items = [
                             ipamScopeId: "ipam-scope-0123456789abcdef0"
                             sourceIpamPoolId: "ipam-pool-0123456789abcdef0"
                             allocationDefaultNetmaskLength: 16
-                            locale: "us-east-1"
                             region: "us-east-1"
                             tags: {
                                 hops: "true"
@@ -89,7 +88,6 @@ _items = [
                             ipamScopeId: "ipam-scope-0123456789abcdef0"
                             sourceIpamPoolId: "ipam-pool-0123456789abcdef0"
                             allocationDefaultNetmaskLength: 16
-                            locale: "us-east-1"
                             region: "us-east-1"
                         }
                         providerConfigRef: {
@@ -175,15 +173,14 @@ _items = [
                     kind: "VPCIpamPool"
                     metadata: { name: "prod-east-vpc" }
                 },
-                # Private Subnet Pool - child of VPC pool
+                # Subnet Pool - child of VPC pool
                 {
                     apiVersion: "ec2.aws.m.upbound.io/v1beta1"
                     kind: "VPCIpamPool"
                     metadata: {
-                        name: "prod-east-private"
+                        name: "prod-east-subnet"
                         labels: {
                             "hops.ops.com.ai/network-allocation": "prod-east"
-                            "hops.ops.com.ai/pool-type": "subnet-private"
                         }
                     }
                     spec: {
@@ -191,51 +188,18 @@ _items = [
                             addressFamily: "ipv4"
                             ipamScopeId: "ipam-scope-0123456789abcdef0"
                             sourceIpamPoolId: "ipam-pool-vpc-12345"
-                            allocationDefaultNetmaskLength: 20
-                            locale: "us-east-1"
-                            region: "us-east-1"
-                        }
-                    }
-                },
-                # Private Subnet Pool CIDR
-                {
-                    apiVersion: "ec2.aws.m.upbound.io/v1beta1"
-                    kind: "VPCIpamPoolCidr"
-                    metadata: { name: "prod-east-private" }
-                    spec: {
-                        forProvider: {
-                            cidr: "10.0.0.0/16"
-                            region: "us-east-1"
-                        }
-                    }
-                },
-                # Public Subnet Pool - child of VPC pool
-                {
-                    apiVersion: "ec2.aws.m.upbound.io/v1beta1"
-                    kind: "VPCIpamPool"
-                    metadata: {
-                        name: "prod-east-public"
-                        labels: {
-                            "hops.ops.com.ai/network-allocation": "prod-east"
-                            "hops.ops.com.ai/pool-type": "subnet-public"
-                        }
-                    }
-                    spec: {
-                        forProvider: {
-                            addressFamily: "ipv4"
-                            ipamScopeId: "ipam-scope-0123456789abcdef0"
-                            sourceIpamPoolId: "ipam-pool-vpc-12345"
+                            allocationMinNetmaskLength: 20
+                            allocationMaxNetmaskLength: 24
                             allocationDefaultNetmaskLength: 24
-                            locale: "us-east-1"
                             region: "us-east-1"
                         }
                     }
                 },
-                # Public Subnet Pool CIDR
+                # Subnet Pool CIDR
                 {
                     apiVersion: "ec2.aws.m.upbound.io/v1beta1"
                     kind: "VPCIpamPoolCidr"
-                    metadata: { name: "prod-east-public" }
+                    metadata: { name: "prod-east-subnet" }
                     spec: {
                         forProvider: {
                             cidr: "10.0.0.0/16"
@@ -247,7 +211,7 @@ _items = [
         }
     },
 
-    # Test 4: With subnet pools ready - should create allocations
+    # Test 4: With subnet pool ready - should create allocations
     metav1alpha1.CompositionTest{
         metadata.name: "test-ipv4-allocation-step3-allocations"
         spec = {
@@ -295,79 +259,44 @@ _items = [
                         }
                     }
                 },
-                # Private Subnet Pool - Ready
+                # Subnet Pool - Ready
                 {
                     apiVersion: "ec2.aws.m.upbound.io/v1beta1"
                     kind: "VPCIpamPool"
                     metadata: {
-                        name: "prod-east-private"
+                        name: "prod-east-subnet"
                         annotations: {
-                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool-private"
-                            "crossplane.io/composition-resource-name": "subnet-pool-private"
+                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool"
+                            "crossplane.io/composition-resource-name": "subnet-pool"
                         }
                     }
                     status: {
                         conditions: [{ type: "Ready", status: "True" }]
                         atProvider: {
-                            id: "ipam-pool-private-12345"
-                            arn: "arn:aws:ec2:us-east-1:123456789012:ipam-pool/ipam-pool-private-12345"
+                            id: "ipam-pool-subnet-12345"
+                            arn: "arn:aws:ec2:us-east-1:123456789012:ipam-pool/ipam-pool-subnet-12345"
                         }
                     }
                 },
-                # Private Subnet Pool CIDR - Ready
+                # Subnet Pool CIDR - Ready
                 {
                     apiVersion: "ec2.aws.m.upbound.io/v1beta1"
                     kind: "VPCIpamPoolCidr"
                     metadata: {
-                        name: "prod-east-private"
+                        name: "prod-east-subnet"
                         annotations: {
-                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool-private-cidr"
-                            "crossplane.io/composition-resource-name": "subnet-pool-private-cidr"
+                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool-cidr"
+                            "crossplane.io/composition-resource-name": "subnet-pool-cidr"
                         }
                     }
                     status: {
                         conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "ipam-pool-cidr-private" }
-                    }
-                },
-                # Public Subnet Pool - Ready
-                {
-                    apiVersion: "ec2.aws.m.upbound.io/v1beta1"
-                    kind: "VPCIpamPool"
-                    metadata: {
-                        name: "prod-east-public"
-                        annotations: {
-                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool-public"
-                            "crossplane.io/composition-resource-name": "subnet-pool-public"
-                        }
-                    }
-                    status: {
-                        conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: {
-                            id: "ipam-pool-public-12345"
-                            arn: "arn:aws:ec2:us-east-1:123456789012:ipam-pool/ipam-pool-public-12345"
-                        }
-                    }
-                },
-                # Public Subnet Pool CIDR - Ready
-                {
-                    apiVersion: "ec2.aws.m.upbound.io/v1beta1"
-                    kind: "VPCIpamPoolCidr"
-                    metadata: {
-                        name: "prod-east-public"
-                        annotations: {
-                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool-public-cidr"
-                            "crossplane.io/composition-resource-name": "subnet-pool-public-cidr"
-                        }
-                    }
-                    status: {
-                        conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "ipam-pool-cidr-public" }
+                        atProvider: { id: "ipam-pool-cidr-subnet" }
                     }
                 }
             ]
             assertResources: [
-                # Private subnet allocations for AZs a, b, c
+                # Private subnet allocations for AZs a, b, c (default /20)
                 {
                     apiVersion: "ec2.aws.m.upbound.io/v1beta1"
                     kind: "VPCIpamPoolCidrAllocation"
@@ -381,7 +310,7 @@ _items = [
                     }
                     spec: {
                         forProvider: {
-                            ipamPoolId: "ipam-pool-private-12345"
+                            ipamPoolId: "ipam-pool-subnet-12345"
                             netmaskLength: 20
                             region: "us-east-1"
                         }
@@ -399,7 +328,7 @@ _items = [
                     }
                     spec: {
                         forProvider: {
-                            ipamPoolId: "ipam-pool-private-12345"
+                            ipamPoolId: "ipam-pool-subnet-12345"
                             netmaskLength: 20
                         }
                     }
@@ -416,12 +345,12 @@ _items = [
                     }
                     spec: {
                         forProvider: {
-                            ipamPoolId: "ipam-pool-private-12345"
+                            ipamPoolId: "ipam-pool-subnet-12345"
                             netmaskLength: 20
                         }
                     }
                 },
-                # Public subnet allocations for AZs a, b, c
+                # Public subnet allocations for AZs a, b, c (default /24)
                 {
                     apiVersion: "ec2.aws.m.upbound.io/v1beta1"
                     kind: "VPCIpamPoolCidrAllocation"
@@ -434,7 +363,7 @@ _items = [
                     }
                     spec: {
                         forProvider: {
-                            ipamPoolId: "ipam-pool-public-12345"
+                            ipamPoolId: "ipam-pool-subnet-12345"
                             netmaskLength: 24
                         }
                     }
@@ -451,7 +380,7 @@ _items = [
                     }
                     spec: {
                         forProvider: {
-                            ipamPoolId: "ipam-pool-public-12345"
+                            ipamPoolId: "ipam-pool-subnet-12345"
                             netmaskLength: 24
                         }
                     }
@@ -468,7 +397,7 @@ _items = [
                     }
                     spec: {
                         forProvider: {
-                            ipamPoolId: "ipam-pool-public-12345"
+                            ipamPoolId: "ipam-pool-subnet-12345"
                             netmaskLength: 24
                         }
                     }
@@ -477,7 +406,7 @@ _items = [
         }
     },
 
-    # Test 5: Custom sizes example (dev-west with /20 VPC, /24 private, /26 public)
+    # Test 5: Custom sizes example (dev-west with /20 VPC)
     metav1alpha1.CompositionTest{
         metadata.name: "test-ipv4-allocation-custom-sizes"
         spec = {
@@ -494,7 +423,6 @@ _items = [
                     spec: {
                         forProvider: {
                             allocationDefaultNetmaskLength: 20
-                            locale: "us-west-2"
                             region: "us-west-2"
                         }
                     }
@@ -558,65 +486,35 @@ _items = [
                         atProvider: { id: "ipam-pool-cidr-vpc", cidr: "10.0.0.0/16" }
                     }
                 },
-                # Subnet Pools - Ready
+                # Subnet Pool - Ready
                 {
                     apiVersion: "ec2.aws.m.upbound.io/v1beta1"
                     kind: "VPCIpamPool"
                     metadata: {
-                        name: "prod-east-private"
+                        name: "prod-east-subnet"
                         annotations: {
-                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool-private"
-                            "crossplane.io/composition-resource-name": "subnet-pool-private"
+                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool"
+                            "crossplane.io/composition-resource-name": "subnet-pool"
                         }
                     }
                     status: {
                         conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "ipam-pool-private-12345" }
+                        atProvider: { id: "ipam-pool-subnet-12345" }
                     }
                 },
                 {
                     apiVersion: "ec2.aws.m.upbound.io/v1beta1"
                     kind: "VPCIpamPoolCidr"
                     metadata: {
-                        name: "prod-east-private"
+                        name: "prod-east-subnet"
                         annotations: {
-                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool-private-cidr"
-                            "crossplane.io/composition-resource-name": "subnet-pool-private-cidr"
+                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool-cidr"
+                            "crossplane.io/composition-resource-name": "subnet-pool-cidr"
                         }
                     }
                     status: {
                         conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "ipam-pool-cidr-private" }
-                    }
-                },
-                {
-                    apiVersion: "ec2.aws.m.upbound.io/v1beta1"
-                    kind: "VPCIpamPool"
-                    metadata: {
-                        name: "prod-east-public"
-                        annotations: {
-                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool-public"
-                            "crossplane.io/composition-resource-name": "subnet-pool-public"
-                        }
-                    }
-                    status: {
-                        conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "ipam-pool-public-12345" }
-                    }
-                },
-                {
-                    apiVersion: "ec2.aws.m.upbound.io/v1beta1"
-                    kind: "VPCIpamPoolCidr"
-                    metadata: {
-                        name: "prod-east-public"
-                        annotations: {
-                            "gotemplating.fn.crossplane.io/composition-resource-name": "subnet-pool-public-cidr"
-                            "crossplane.io/composition-resource-name": "subnet-pool-public-cidr"
-                        }
-                    }
-                    status: {
-                        conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "ipam-pool-cidr-public" }
+                        atProvider: { id: "ipam-pool-cidr-subnet" }
                     }
                 },
                 # Subnet Allocations - Ready with CIDRs
@@ -632,7 +530,7 @@ _items = [
                     }
                     status: {
                         conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "alloc-private-a", cidr: "10.0.0.0/20" }
+                        atProvider: { id: "alloc-private-a", cidr: "10.0.0.0/24" }
                     }
                 },
                 {
@@ -647,7 +545,7 @@ _items = [
                     }
                     status: {
                         conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "alloc-private-b", cidr: "10.0.16.0/20" }
+                        atProvider: { id: "alloc-private-b", cidr: "10.0.1.0/24" }
                     }
                 },
                 {
@@ -662,7 +560,7 @@ _items = [
                     }
                     status: {
                         conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "alloc-private-c", cidr: "10.0.32.0/20" }
+                        atProvider: { id: "alloc-private-c", cidr: "10.0.2.0/24" }
                     }
                 },
                 {
@@ -677,7 +575,7 @@ _items = [
                     }
                     status: {
                         conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "alloc-public-a", cidr: "10.0.48.0/24" }
+                        atProvider: { id: "alloc-public-a", cidr: "10.0.3.0/24" }
                     }
                 },
                 {
@@ -692,7 +590,7 @@ _items = [
                     }
                     status: {
                         conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "alloc-public-b", cidr: "10.0.49.0/24" }
+                        atProvider: { id: "alloc-public-b", cidr: "10.0.4.0/24" }
                     }
                 },
                 {
@@ -707,7 +605,7 @@ _items = [
                     }
                     status: {
                         conditions: [{ type: "Ready", status: "True" }]
-                        atProvider: { id: "alloc-public-c", cidr: "10.0.50.0/24" }
+                        atProvider: { id: "alloc-public-c", cidr: "10.0.5.0/24" }
                     }
                 }
             ]
@@ -723,15 +621,14 @@ _items = [
                         ready: True
                         cidr: "10.0.0.0/16"
                         vpcPoolId: "ipam-pool-vpc-12345"
-                        privatePoolId: "ipam-pool-private-12345"
-                        publicPoolId: "ipam-pool-public-12345"
+                        subnetPoolId: "ipam-pool-subnet-12345"
                         subnets: {
-                            "private-a": "10.0.0.0/20"
-                            "private-b": "10.0.16.0/20"
-                            "private-c": "10.0.32.0/20"
-                            "public-a": "10.0.48.0/24"
-                            "public-b": "10.0.49.0/24"
-                            "public-c": "10.0.50.0/24"
+                            "private-a": "10.0.0.0/24"
+                            "private-b": "10.0.1.0/24"
+                            "private-c": "10.0.2.0/24"
+                            "public-a": "10.0.3.0/24"
+                            "public-b": "10.0.4.0/24"
+                            "public-c": "10.0.5.0/24"
                         }
                     }
                 }

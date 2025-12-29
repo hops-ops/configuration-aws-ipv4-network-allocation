@@ -1,11 +1,12 @@
 # code: language=yaml
 # yaml-language-server: $schema=../../.up/json/models/index.schema.json
 
-# Subnet Allocations - created after subnet pools are ready
+# Subnet Allocations - created after subnet pool is ready
 # Creates VPCIpamPoolCidrAllocation for each subnet (per AZ, per type)
 
-{{ if $subnetPoolsFullyReady }}
+{{ if $subnetPoolFullyReady }}
   {{ range $az := $availabilityZones }}
+    {{ if $privateEnabled }}
 ---
 apiVersion: ec2.aws.m.upbound.io/v1beta1
 kind: VPCIpamPoolCidrAllocation
@@ -20,14 +21,15 @@ metadata:
 spec:
   managementPolicies: {{ $managementPolicies | toJson }}
   forProvider:
-    ipamPoolId: {{ $observedPrivatePoolId }}
+    ipamPoolId: {{ $observedSubnetPoolId }}
     netmaskLength: {{ $privateNetmaskLength }}
     region: {{ $awsRegion }}
     description: "Private subnet {{ $az }} for {{ $name }}"
   providerConfigRef:
-    kind: ProviderConfig
-    name: {{ $awsProviderConfig }}
-
+    name: {{ $providerConfigName }}
+    kind: {{ $providerConfigKind }}
+    {{ end }}
+    {{ if $publicEnabled }}
 ---
 apiVersion: ec2.aws.m.upbound.io/v1beta1
 kind: VPCIpamPoolCidrAllocation
@@ -42,12 +44,13 @@ metadata:
 spec:
   managementPolicies: {{ $managementPolicies | toJson }}
   forProvider:
-    ipamPoolId: {{ $observedPublicPoolId }}
+    ipamPoolId: {{ $observedSubnetPoolId }}
     netmaskLength: {{ $publicNetmaskLength }}
     region: {{ $awsRegion }}
     description: "Public subnet {{ $az }} for {{ $name }}"
   providerConfigRef:
-    kind: ProviderConfig
-    name: {{ $awsProviderConfig }}
+    name: {{ $providerConfigName }}
+    kind: {{ $providerConfigKind }}
+    {{ end }}
   {{ end }}
 {{ end }}

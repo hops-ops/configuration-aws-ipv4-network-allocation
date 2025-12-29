@@ -19,15 +19,17 @@ spec:
     ipamScopeId: {{ $scopeId }}
     sourceIpamPoolId: {{ $regionalPoolId }}
     allocationDefaultNetmaskLength: {{ $vpcNetmaskLength }}
-    locale: {{ $awsRegion }}
+    {{- if $awsLocale }}
+    locale: {{ $awsLocale }}
+    {{- end }}
     region: {{ $awsRegion }}
     description: "VPC pool for {{ $name }}"
     tags:
-      {{ $defaultTags | toYaml | nindent 6 }}
+      {{ $awsTags | toYaml | nindent 6 }}
       Name: {{ $name }}-vpc-pool
   providerConfigRef:
-    kind: ProviderConfig
-    name: {{ $awsProviderConfig }}
+    name: {{ $providerConfigName }}
+    kind: {{ $providerConfigKind }}
 
 ---
 apiVersion: ec2.aws.m.upbound.io/v1beta1
@@ -44,5 +46,5 @@ spec:
     netmaskLength: {{ $vpcNetmaskLength }}
     region: {{ $awsRegion }}
   providerConfigRef:
-    kind: ProviderConfig
-    name: {{ $awsProviderConfig }}
+    name: {{ $providerConfigName }}
+    kind: {{ $providerConfigKind }}

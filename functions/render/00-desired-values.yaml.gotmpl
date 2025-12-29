@@ -17,10 +17,19 @@
 # Management policies
 {{ $managementPolicies := $spec.managementPolicies | default (list "*") }}
 
+# Provider config - single provider pattern with name and kind
+{{ $providerConfigRef := $spec.providerConfigRef | default (dict) }}
+{{ $providerConfigName := $providerConfigRef.name | default "default" }}
+{{ $providerConfigKind := $providerConfigRef.kind | default "ProviderConfig" }}
+
 # AWS configuration
 {{ $aws := $spec.aws | default (dict) }}
-{{ $awsProviderConfig := $aws.providerConfig | default "default" }}
 {{ $awsRegion := $aws.region | default "us-east-1" }}
+{{ $awsLocale := $aws.locale | default "" }}
+
+# Default tags merged with user-provided tags
+{{ $defaultTags := dict "hops" "true" "managed-by" "crossplane" }}
+{{ $awsTags := merge $defaultTags ($aws.tags | default (dict)) }}
 
 # VPC sizing
 {{ $vpc := $spec.vpc | default (dict) }}
@@ -29,12 +38,9 @@
 # Subnet configuration
 {{ $subnets := $spec.subnets | default (dict) }}
 {{ $availabilityZones := $subnets.availabilityZones | default (list "a" "b" "c") }}
-{{ $subnetTypes := $subnets.types | default (dict) }}
-
-{{ $publicConfig := $subnetTypes.public | default (dict) }}
-{{ $privateConfig := $subnetTypes.private | default (dict) }}
+{{ $publicConfig := $subnets.public | default (dict) }}
+{{ $privateConfig := $subnets.private | default (dict) }}
+{{ $publicEnabled := $publicConfig.enabled | default true }}
+{{ $privateEnabled := $privateConfig.enabled | default true }}
 {{ $publicNetmaskLength := $publicConfig.netmaskLength | default 24 }}
 {{ $privateNetmaskLength := $privateConfig.netmaskLength | default 20 }}
-
-# Default tags
-{{ $defaultTags := dict "hops" "true" "managed-by" "crossplane" }}

@@ -1,172 +1,90 @@
 # code: language=yaml
-# yaml-language-server: $schema=../../.up/json/models/index.schema.json
+#
+# Extract observed resource states and build readiness maps.
+# These values are used by downstream templates to gate resource creation.
+#
 
-# Observed resources for status projection and gating
 {{ $observed := $.observed.resources | default (dict) }}
 
-# VPC Pool observations
-{{ $vpcPoolObservation := get $observed "vpc-pool" }}
-{{ $vpcPoolCidrObservation := get $observed "vpc-pool-cidr" }}
-{{ $vpcPoolReady := false }}
-{{ $vpcPoolCidrReady := false }}
-{{ $observedVpcPoolId := "" }}
-{{ $observedVpcCidr := "" }}
+# ==============================================================================
+# Resource Readiness Map
+# ==============================================================================
+# Build a lookup table: resourceName -> true/false
+# Use: get $resourceReadiness "vpc-pool" returns true if VPC pool is Ready
+#
+{{ $resourceReadiness := dict }}
 
-{{ with $vpcPoolObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ if and (eq (get . "type") "Ready") (eq (get . "status") "True") }}
-      {{ $vpcPoolReady = true }}
-    {{ end }}
-  {{ end }}
-  {{ $atProvider := $status.atProvider | default (dict) }}
-  {{ $candidateId := $atProvider.id | default "" }}
-  {{ if $candidateId }}
-    {{ $observedVpcPoolId = $candidateId }}
-  {{ end }}
+{{ range $name, $entry := $observed }}
+  {{- $resource := $entry.resource | default (dict) }}
+  {{- $status := $resource.status | default (dict) }}
+  {{- $conditions := $status.conditions | default (list) }}
+
+  {{- $isReady := false }}
+  {{- range $conditions }}
+    {{- if and (eq .type "Ready") (eq .status "True") }}
+      {{- $isReady = true }}
+    {{- end }}
+  {{- end }}
+
+  {{- $_ := set $resourceReadiness $name $isReady }}
 {{ end }}
 
-{{ with $vpcPoolCidrObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ if and (eq (get . "type") "Ready") (eq (get . "status") "True") }}
-      {{ $vpcPoolCidrReady = true }}
-    {{ end }}
-  {{ end }}
-  {{ $atProvider := $status.atProvider | default (dict) }}
-  {{ $candidateCidr := $atProvider.cidr | default "" }}
-  {{ if $candidateCidr }}
-    {{ $observedVpcCidr = $candidateCidr }}
-  {{ end }}
-{{ end }}
+# ==============================================================================
+# VPC Pool Observed Values
+# ==============================================================================
+# The VPC pool and its CIDR must be ready before subnet pools can be created.
+#
+{{ $vpcPoolObs := get $observed "vpc-pool" | default (dict) }}
+{{ $vpcPoolAtProvider := (($vpcPoolObs.resource | default (dict)).status | default (dict)).atProvider | default (dict) }}
+{{ $observedVpcPoolId := $vpcPoolAtProvider.id | default "" }}
 
+{{ $vpcPoolCidrObs := get $observed "vpc-pool-cidr" | default (dict) }}
+{{ $vpcPoolCidrAtProvider := (($vpcPoolCidrObs.resource | default (dict)).status | default (dict)).atProvider | default (dict) }}
+{{ $observedVpcCidr := $vpcPoolCidrAtProvider.cidr | default "" }}
+
+# VPC pool is fully ready when both pool and cidr are Ready with values
+{{ $vpcPoolReady := get $resourceReadiness "vpc-pool" | default false }}
+{{ $vpcPoolCidrReady := get $resourceReadiness "vpc-pool-cidr" | default false }}
 {{ $vpcPoolFullyReady := and $vpcPoolReady $vpcPoolCidrReady $observedVpcPoolId $observedVpcCidr }}
 
-# Subnet Pool observations
-{{ $privatePoolObservation := get $observed "subnet-pool-private" }}
-{{ $privatePoolCidrObservation := get $observed "subnet-pool-private-cidr" }}
-{{ $publicPoolObservation := get $observed "subnet-pool-public" }}
-{{ $publicPoolCidrObservation := get $observed "subnet-pool-public-cidr" }}
+# ==============================================================================
+# Subnet Pool Observed Values
+# ==============================================================================
+# The subnet pool must be ready before subnet allocations can be created.
+#
+{{ $subnetPoolObs := get $observed "subnet-pool" | default (dict) }}
+{{ $subnetPoolAtProvider := (($subnetPoolObs.resource | default (dict)).status | default (dict)).atProvider | default (dict) }}
+{{ $observedSubnetPoolId := $subnetPoolAtProvider.id | default "" }}
 
-{{ $privatePoolReady := false }}
-{{ $privatePoolCidrReady := false }}
-{{ $publicPoolReady := false }}
-{{ $publicPoolCidrReady := false }}
-{{ $observedPrivatePoolId := "" }}
-{{ $observedPublicPoolId := "" }}
+{{ $subnetPoolReady := get $resourceReadiness "subnet-pool" | default false }}
+{{ $subnetPoolCidrReady := get $resourceReadiness "subnet-pool-cidr" | default false }}
+{{ $subnetPoolFullyReady := and $subnetPoolReady $subnetPoolCidrReady $observedSubnetPoolId }}
 
-{{ with $privatePoolObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ if and (eq (get . "type") "Ready") (eq (get . "status") "True") }}
-      {{ $privatePoolReady = true }}
-    {{ end }}
-  {{ end }}
-  {{ $atProvider := $status.atProvider | default (dict) }}
-  {{ $candidateId := $atProvider.id | default "" }}
-  {{ if $candidateId }}
-    {{ $observedPrivatePoolId = $candidateId }}
-  {{ end }}
-{{ end }}
-
-{{ with $privatePoolCidrObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ if and (eq (get . "type") "Ready") (eq (get . "status") "True") }}
-      {{ $privatePoolCidrReady = true }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
-{{ with $publicPoolObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ if and (eq (get . "type") "Ready") (eq (get . "status") "True") }}
-      {{ $publicPoolReady = true }}
-    {{ end }}
-  {{ end }}
-  {{ $atProvider := $status.atProvider | default (dict) }}
-  {{ $candidateId := $atProvider.id | default "" }}
-  {{ if $candidateId }}
-    {{ $observedPublicPoolId = $candidateId }}
-  {{ end }}
-{{ end }}
-
-{{ with $publicPoolCidrObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ if and (eq (get . "type") "Ready") (eq (get . "status") "True") }}
-      {{ $publicPoolCidrReady = true }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
-{{ $subnetPoolsFullyReady := and $privatePoolReady $privatePoolCidrReady $publicPoolReady $publicPoolCidrReady $observedPrivatePoolId $observedPublicPoolId }}
-
-# Subnet Allocation observations - collect CIDRs from all allocations
+# ==============================================================================
+# Subnet Allocation Observed Values
+# ==============================================================================
+# Collect CIDRs from all subnet allocations for status output.
+#
 {{ $subnetCidrs := dict }}
-{{ $allSubnetsReady := true }}
 
 {{ range $az := $availabilityZones }}
-  {{ $privateAllocName := printf "subnet-private-%s" $az }}
-  {{ $publicAllocName := printf "subnet-public-%s" $az }}
+  {{- if $privateEnabled }}
+    {{- $allocKey := printf "subnet-private-%s" $az }}
+    {{- $allocObs := get $observed $allocKey | default (dict) }}
+    {{- $allocAtProvider := (($allocObs.resource | default (dict)).status | default (dict)).atProvider | default (dict) }}
+    {{- $cidr := $allocAtProvider.cidr | default "" }}
+    {{- if $cidr }}
+      {{- $_ := set $subnetCidrs (printf "private-%s" $az) $cidr }}
+    {{- end }}
+  {{- end }}
 
-  {{ $privateAllocObservation := get $observed $privateAllocName }}
-  {{ $publicAllocObservation := get $observed $publicAllocName }}
-
-  {{ with $privateAllocObservation }}
-    {{ $resource := .resource | default (dict) }}
-    {{ $status := $resource.status | default (dict) }}
-    {{ $conditions := $status.conditions | default (list) }}
-    {{ $thisReady := false }}
-    {{ range $conditions }}
-      {{ if and (eq (get . "type") "Ready") (eq (get . "status") "True") }}
-        {{ $thisReady = true }}
-      {{ end }}
-    {{ end }}
-    {{ if not $thisReady }}
-      {{ $allSubnetsReady = false }}
-    {{ end }}
-    {{ $atProvider := $status.atProvider | default (dict) }}
-    {{ $candidateCidr := $atProvider.cidr | default "" }}
-    {{ if $candidateCidr }}
-      {{ $subnetCidrs = set $subnetCidrs (printf "private-%s" $az) $candidateCidr }}
-    {{ end }}
-  {{ else }}
-    {{ $allSubnetsReady = false }}
-  {{ end }}
-
-  {{ with $publicAllocObservation }}
-    {{ $resource := .resource | default (dict) }}
-    {{ $status := $resource.status | default (dict) }}
-    {{ $conditions := $status.conditions | default (list) }}
-    {{ $thisReady := false }}
-    {{ range $conditions }}
-      {{ if and (eq (get . "type") "Ready") (eq (get . "status") "True") }}
-        {{ $thisReady = true }}
-      {{ end }}
-    {{ end }}
-    {{ if not $thisReady }}
-      {{ $allSubnetsReady = false }}
-    {{ end }}
-    {{ $atProvider := $status.atProvider | default (dict) }}
-    {{ $candidateCidr := $atProvider.cidr | default "" }}
-    {{ if $candidateCidr }}
-      {{ $subnetCidrs = set $subnetCidrs (printf "public-%s" $az) $candidateCidr }}
-    {{ end }}
-  {{ else }}
-    {{ $allSubnetsReady = false }}
-  {{ end }}
+  {{- if $publicEnabled }}
+    {{- $allocKey := printf "subnet-public-%s" $az }}
+    {{- $allocObs := get $observed $allocKey | default (dict) }}
+    {{- $allocAtProvider := (($allocObs.resource | default (dict)).status | default (dict)).atProvider | default (dict) }}
+    {{- $cidr := $allocAtProvider.cidr | default "" }}
+    {{- if $cidr }}
+      {{- $_ := set $subnetCidrs (printf "public-%s" $az) $cidr }}
+    {{- end }}
+  {{- end }}
 {{ end }}

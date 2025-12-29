@@ -1,19 +1,38 @@
 # code: language=yaml
-# yaml-language-server: $schema=../../.up/json/models/index.schema.json
+#
+# Status Output
+# =============
+# Surface observed values to users. Ready condition managed by function-auto-ready.
+#
 
-# Status - surfaces observed values for downstream consumers
+# Determine if all expected subnet allocations are ready
+{{ $allSubnetsReady := true }}
+{{ range $az := $availabilityZones }}
+  {{- if $privateEnabled }}
+    {{- $allocKey := printf "subnet-private-%s" $az }}
+    {{- if not (get $resourceReadiness $allocKey) }}
+      {{- $allSubnetsReady = false }}
+    {{- end }}
+  {{- end }}
+  {{- if $publicEnabled }}
+    {{- $allocKey := printf "subnet-public-%s" $az }}
+    {{- if not (get $resourceReadiness $allocKey) }}
+      {{- $allSubnetsReady = false }}
+    {{- end }}
+  {{- end }}
+{{ end }}
+
 ---
 apiVersion: {{ $xr.apiVersion }}
 kind: {{ $xr.kind }}
 status:
   ready: {{ $allSubnetsReady }}
-  cidr: {{ $observedVpcCidr | default "Pending" }}
-  vpcPoolId: {{ $observedVpcPoolId | default "Pending" }}
-  privatePoolId: {{ $observedPrivatePoolId | default "Pending" }}
-  publicPoolId: {{ $observedPublicPoolId | default "Pending" }}
-  {{ if $allSubnetsReady }}
+  cidr: {{ $observedVpcCidr | default "Pending" | quote }}
+  vpcPoolId: {{ $observedVpcPoolId | default "Pending" | quote }}
+  subnetPoolId: {{ $observedSubnetPoolId | default "Pending" | quote }}
+  {{- if $allSubnetsReady }}
   subnets:
-    {{ range $key, $value := $subnetCidrs }}
-    {{ $key }}: {{ $value }}
-    {{ end }}
-  {{ end }}
+    {{- range $key, $value := $subnetCidrs }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
