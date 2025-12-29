@@ -6,7 +6,6 @@
 {{ $metadata := $xr.metadata }}
 
 {{ $name := $metadata.name }}
-{{ $namespace := $metadata.namespace | default "default" }}
 
 # Regional pool ID from aws-ipam status (required)
 {{ $regionalPoolId := $spec.regionalPoolId }}
@@ -28,7 +27,7 @@
 {{ $awsLocale := $aws.locale | default "" }}
 
 # Default tags merged with user-provided tags
-{{ $defaultTags := dict "hops" "true" "managed-by" "crossplane" }}
+{{ $defaultTags := dict "hops" "true" }}
 {{ $awsTags := merge $defaultTags ($aws.tags | default (dict)) }}
 
 # VPC sizing
